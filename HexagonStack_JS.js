@@ -1,8 +1,6 @@
 let cols, rows, rowAdj, colAdj, cellWidth, cellHeight; //grid variables
-let numPoints, translateY, xDiv, xDiv2, yDiv,vertSpaceAdj; //hexagon variables
+let radius, numPoints, translateY, xDiv, xDiv2, yDiv, vertSpaceAdj; //hexagon variables
 let stackNum, stackSmooth, stackHex, stackMatrix; //matrix/stack variables
-
-let radius;
 ///COLORS///
 let bk;
 let BK = ["#87A5A5", "#BFA8BE", "#D9896D", "#F26666", "#A0DEAE", "#40352C"];
@@ -41,7 +39,7 @@ function draw() {
   cellWidth = width/cols;
   cellHeight = height/rows;
   rowAdj = rows + round(vertSpaceAdj);
-  colAdj = cols;
+  colAdj = cols; //might need later, this isnt a useless variable I promise
   stackHex = new Matrix();
   //printMatrix(stackHex.matrix);
   //print("--------");
@@ -49,8 +47,8 @@ function draw() {
   stackMatrix = stackHex.runAverageMultiple(stackSmooth);
   //printMatrix(stackHex.matrix);
   
-  for(let r = 0; r < rowAdj; r++){
-      for(let c = 0; c < colAdj; c++){ //EVEN COLUMNS
+  for (let r = 0; r < rowAdj; r++){
+      for (let c = 0; c < colAdj; c++){ //EVEN COLUMNS
         let rndColor = intRandom(Color1.length);
         let color1 = Color1[rndColor];
         let color2 = Color2[rndColor];
@@ -59,15 +57,13 @@ function draw() {
         let centerY = r * cellHeight;
         
         //EVEN COLUMNS
-        if(c % 2 == 0){ 
+        if (c % 2 == 0){ 
           print("row: " + r + " column: " + c);
-          //stacking the hexagons
-          let x = 0;
-          drawAllHex(centerX, centerY, radius, color1, color2, x, c, r);
+          drawAllHex(centerX, centerY, radius, color1, color2, c, r);
         }
       }
       
-      for(let c = 0; c < colAdj; c++){ //ODD COLUMNS
+      for (let c = 0; c < colAdj; c++){ //ODD COLUMNS
         let rndColor = intRandom(Color1.length);
         let color1 = Color1[rndColor];
         let color2 = Color2[rndColor];
@@ -76,18 +72,16 @@ function draw() {
         let centerY = r * cellHeight + cellHeight/yDiv;
         
         //ODD COLUMNS
-        if(c % 2 != 0){
+        if (c % 2 != 0){
          print("row: " + r + " column: " + c);
-         //stacking the hexagons
-         let x = 0;
-         drawAllHex(centerX, centerY, radius, color1, color2, x, c, r);
+         drawAllHex(centerX, centerY, radius, color1, color2, c, r);
         }
       }
       
     }//end of rows for loop
 }//end of function draw()
 
-function drawAllHex(centerX, centerY, radius, color1, color2, x, c, r){
+function drawAllHex(centerX, centerY, radius, color1, color2, c, r){
     //stacking the hexagons
     for (let i = 0; i < stackMatrix[r][c]; i++){
       if (i == 1){
@@ -99,17 +93,16 @@ function drawAllHex(centerX, centerY, radius, color1, color2, x, c, r){
       }
       else if (i > 1){
         fill(color1);
-        Polygon2(centerX, centerY - ((x * translateY) + translateY) , radius, translateY +2);
+        Polygon2(centerX, centerY - (i+1 * translateY) , radius, translateY +3);
         fill(color2);
-        Polygon(centerX, centerY - ((x * translateY) + translateY), radius);
-        polyHole(centerX, centerY - ((x * translateY) + translateY), radius, translateY, color1, color2);
-        x++;
+        Polygon(centerX, centerY - (i+1 * translateY), radius);
+        polyHole(centerX, centerY - (i+1 * translateY), radius, translateY, color1, color2);
       }
     }
 }//end of drawAllHex()
 
 function polyHole(centerX, centerY, radius, translateY, color1, fillColor){
-  if(random(5) < 1) //randomly add hole to hexagon
+  if (random(5) < 1) //randomly add hole to hexagon
       {
         push();
         translate(centerX, centerY+translateY/2); //translate so that 0,0 is center of shape
@@ -156,13 +149,13 @@ class Matrix{ //matrix class
 
   constructor(){ //constructor for generating random numbers in matrix
     this.stackMatrix = new Array(rowAdj);
-    for(let r = 0; r < rowAdj; r++) {
+    for (let r = 0; r < rowAdj; r++) {
       this.stackMatrix[r] = new Array(colAdj);
-      for(let c = 0; c < colAdj; c++) {
+      for (let c = 0; c < colAdj; c++) {
         let rndNum = intRandom(stackNum);
         this.stackMatrix[r][c] = rndNum;
-      }
-    }
+      }//end column
+    }//end row
   }//end of Matrix(rows,cols)
   
   runAverageMultiple(num){
@@ -186,31 +179,27 @@ class Matrix{ //matrix class
       [rndRow+1, rndCol+1], //right2
       [rndRow+1, rndCol] //below
     ];
-  
     let low = 0;
     let mid = 0;
     let high = 0;
     
     for (let i = 0; i < 6; i++){
       //checking for out of bounds values
-      
       if ((searchMatrix[i][0] >= 0 && searchMatrix[i][0] < rowAdj) && (searchMatrix[i][1] >= 0 && searchMatrix[i][1] < colAdj)){
-      
         //checks if searched value is lower, higher, or the same as the selected value and tallies result
-        if(this.stackMatrix[searchMatrix[i][0]][searchMatrix[i][1]] < this.stackMatrix[rndRow][rndCol]){
+        if (this.stackMatrix[searchMatrix[i][0]][searchMatrix[i][1]] < this.stackMatrix[rndRow][rndCol]){
           low++;
         }
-        else if(this.stackMatrix[searchMatrix[i][0]][searchMatrix[i][1]] > this.stackMatrix[rndRow][rndCol]){
+        else if (this.stackMatrix[searchMatrix[i][0]][searchMatrix[i][1]] > this.stackMatrix[rndRow][rndCol]){
           high++;
         }
         else { 
           mid++;
         }
-
-      }
+      }//end if
     }//end of for loop
   
-    if(low > mid){
+    if (low > mid){
       this.stackMatrix[rndRow][rndCol]--;
     }
     else if (high > mid){

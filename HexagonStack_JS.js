@@ -1,5 +1,5 @@
 let cols, rows, cellWidth, cellHeight; //grid variables
-let radius, hexHoleRnd, translateY, vertSpaceAdj, HorzSpaceAdj; //hexagon variables
+let radius, hexHoleRnd, translateY, vertSpaceAdj, horzSpaceAdj; //hexagon variables
 let stackNum, stackSmooth, dataMatrix, stackMatrix, hexHoleMatrix; //matrix/stack variables
 
 ///COLORS///
@@ -18,14 +18,14 @@ function setup() {
   //Hexagon parameters
   radius = 70;
   vertSpaceAdj = 1.6; //adjusts space between columns; bigger number = more space
-  HorzSpaceAdj = 1.8; //adjusts space between rows
+  horzSpaceAdj = 1.8; //adjusts space between rows
   hexHoleRnd = 5;
   translateY = 20;
   stackNum = 7;
   stackSmooth = 200;
   
   cellWidth = radius * vertSpaceAdj;
-  cellHeight = radius * HorzSpaceAdj;
+  cellHeight = radius * horzSpaceAdj;
   cols = int(displayWidth/cellWidth +1);
   rows = int(displayHeight/cellHeight +1);
   
@@ -38,12 +38,10 @@ function setup() {
   noLoop();
 }
 
-
 function draw() {
   background(bk);
   
   for (let r = 0; r < rows; r++){
-    
       //EVEN COLUMNS
       //Need to be drawn first so that the offset odd columns are drawn over them
       for (let c = 0; c < cols; c++){ 
@@ -55,8 +53,8 @@ function draw() {
           drawAllHex(centerX, centerY, radius, c, r);
         }
       }
-      
-      for (let c = 0; c < cols; c++){ //ODD COLUMNS
+      //ODD COLUMNS
+      for (let c = 0; c < cols; c++){
         let centerX = c * cellWidth;
         let centerY = r * cellHeight + cellHeight/2;
         
@@ -72,7 +70,7 @@ function draw() {
 function drawAllHex(centerX, centerY, radius, c, r){
     let shadowColor = Color1[colorMatrix[r][c]];
     let baseColor = Color2[colorMatrix[r][c]];
-    //stacking the hexagons
+    
     for (let i = 0; i < stackMatrix[r][c]; i++){
       if (i == 1){
         fill(shadowColor);
@@ -170,8 +168,6 @@ class Matrix{ //matrix class
     let rndRow = intRandom(rows);
     let rndCol = intRandom(cols);
     //print("rndRow: " + rndRow)
-  
-    //all the indexes that need to be checked
     let searchMatrix = [
       [rndRow-1, rndCol], //above
       [rndRow, rndCol-1], //left1
@@ -185,13 +181,15 @@ class Matrix{ //matrix class
     let high = 0;
     
     for (let i = 0; i < 6; i++){
+      let searchedRow = searchMatrix[i][0];
+      let searchedColumn = searchMatrix[i][1];
       //checking for out of bounds values
-      if ((searchMatrix[i][0] >= 0 && searchMatrix[i][0] < rows) && (searchMatrix[i][1] >= 0 && searchMatrix[i][1] < cols)){
+      if ((searchedRow >= 0 && searchedRow < rows) && (searchedColumn >= 0 && searchedColumn < cols)){
         //checks if searched value is lower, higher, or the same as the selected value and tallies result
-        if (this.stackMatrix[searchMatrix[i][0]][searchMatrix[i][1]] < this.stackMatrix[rndRow][rndCol]){
+        if (this.stackMatrix[searchedRow][searchedColumn] < this.stackMatrix[rndRow][rndCol]){
           low++;
         }
-        else if (this.stackMatrix[searchMatrix[i][0]][searchMatrix[i][1]] > this.stackMatrix[rndRow][rndCol]){
+        else if (this.stackMatrix[searchedRow][searchedColumn] > this.stackMatrix[rndRow][rndCol]){
           high++;
         }
         else { 
